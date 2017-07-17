@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sort"
 	"time"
@@ -51,7 +52,7 @@ func queryIndexes(indexPrefix string, after, before time.Time) ([]IndexMeta, err
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", "https://kibana-prod.egnyte-internal.com/elasticsearch/turbo-*/_field_stats?level=indices", body)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/_field_stats?level=indices", *EsUrl, *IndexName), body)
 	if err != nil {
 		return nil, err
 	}

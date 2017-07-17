@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"sort"
 	"time"
 )
 
@@ -31,6 +33,15 @@ type Query struct {
 	Filters     []QueryFilter
 	MaxResults  int
 	QueryAsc    bool
+	ResultsAsc  bool
+}
+
+type HitsByAscDate []Hit
+
+func (a HitsByAscDate) Len() int      { return len(a) }
+func (a HitsByAscDate) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a HitsByAscDate) Less(i, j int) bool {
+	return a[i].Source["@timestamp"].(string) < a[j].Source["@timestamp"].(string)
 }
 
 func queryMessages(index string, query Query) ([]Hit, error) {
@@ -89,7 +100,7 @@ func queryMessages(index string, query Query) ([]Hit, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", "https://kibana-prod.egnyte-internal.com/elasticsearch/_msearch", body)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/_msearch", *EsUrl), body)
 	if err != nil {
 		return nil, err
 	}
@@ -106,5 +117,9 @@ func queryMessages(index string, query Query) ([]Hit, error) {
 	if err != nil {
 		return nil, err
 	}
-	return data.Responses[0].Hits.Hits, nil
+	hits := data.Responses[0].Hits.Hits
+	if query.ResultsAsc {
+		sort.Sort(HitsByAscDate(hits))
+	}
+	return hits, nil
 }
