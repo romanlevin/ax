@@ -31,6 +31,17 @@ func (a ByReverseDate) Len() int           { return len(a) }
 func (a ByReverseDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByReverseDate) Less(i, j int) bool { return a[i].Name > a[j].Name }
 
+func cacheIndexes() []IndexMeta {
+	rc := BuildConfig()
+	before := time.Now()
+	after := before.Add(-7 * 24 * time.Hour)
+	indexes, err := queryIndexes(rc, after, before)
+	if err != nil {
+		panic(err)
+	}
+	return indexes
+}
+
 func queryIndexes(rc RuntimeConfig, after, before time.Time) ([]IndexMeta, error) {
 	body, err := createMultiSearch(
 		JsonObject{

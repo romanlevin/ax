@@ -27,13 +27,17 @@ type RuntimeConfig struct {
 	Command string
 }
 
-func BuildConfig() RuntimeConfig {
+func LoadConfig() Config {
 	var config Config
-	_, err := toml.DecodeFile("clibana.toml", &config)
+	_, err := toml.DecodeFile(fmt.Sprintf("%s/clibana.toml", DataDir), &config)
 	if err != nil {
 		panic(err)
 	}
+	return config
+}
 
+func BuildConfig() RuntimeConfig {
+	config := LoadConfig()
 	rc := RuntimeConfig{}
 	var (
 		activeEnv = kingpin.Flag("env", "Environment to connect to").Short('e').String()
