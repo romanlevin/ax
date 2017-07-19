@@ -10,6 +10,7 @@ import (
 	"time"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/araddon/dateparse"
 	"github.com/fatih/color"
@@ -195,7 +196,7 @@ func queryMain(rc RuntimeConfig) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v\n", indices)
+	//fmt.Printf("%+v\n", indices)
 	hits, err := queryMessages(rc, indices[0].Name, Query{
 		QueryString: strings.Join(*queryString, " "),
 		After:       after,
@@ -242,8 +243,15 @@ func queryMain(rc RuntimeConfig) {
 			err := encoder.Encode(message)
 			if err != nil {
 				fmt.Println("Error JSON encoding")
+				continue
 			}
+		case "yaml":
+			buf, err := yaml.Marshal(message)
+			if err != nil {
+				fmt.Println("Error YAML encoding")
+				continue
+			}
+			fmt.Printf("---\n%s", string(buf))
 		}
-		// fmt.Println(hit.Source)
 	}
 }
