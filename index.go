@@ -31,7 +31,7 @@ func (a ByReverseDate) Len() int           { return len(a) }
 func (a ByReverseDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByReverseDate) Less(i, j int) bool { return a[i].Name > a[j].Name }
 
-func queryIndexes(indexPrefix string, after, before time.Time) ([]IndexMeta, error) {
+func queryIndexes(rc RuntimeConfig, after, before time.Time) ([]IndexMeta, error) {
 	body, err := createMultiSearch(
 		JsonObject{
 			"fields": JsonList{"@timestamp"},
@@ -52,11 +52,11 @@ func queryIndexes(indexPrefix string, after, before time.Time) ([]IndexMeta, err
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/_field_stats?level=indices", *EsUrl, *IndexName), body)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/_field_stats?level=indices", rc.Url, rc.Index), body)
 	if err != nil {
 		return nil, err
 	}
-	addHeaders(req)
+	addHeaders(rc, req)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err

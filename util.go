@@ -24,8 +24,8 @@ func createMultiSearch(objs ...interface{}) (io.Reader, error) {
 type JsonObject map[string]interface{}
 type JsonList []interface{}
 
-func addHeaders(req *http.Request) {
-	req.Header.Set("Authorization", AuthHeader)
+func addHeaders(rc RuntimeConfig, req *http.Request) {
+	req.Header.Set("Authorization", rc.AuthHeader)
 	req.Header.Set("Kbn-Version", "5.2.2")
 	req.Header.Set("Content-Type", "application/x-ldjson")
 	req.Header.Set("Accept", "application/json, text/plain, */*")
