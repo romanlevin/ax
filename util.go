@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"regexp"
 	"time"
 )
 
@@ -19,6 +20,11 @@ func createMultiSearch(objs ...interface{}) (io.Reader, error) {
 	}
 	//fmt.Println(buf.String())
 	return &buf, nil
+}
+
+func safeFilename(name string) string {
+	re := regexp.MustCompile(`[^\w\-]`)
+	return re.ReplaceAllString(name, "_")
 }
 
 type JsonObject map[string]interface{}

@@ -5,6 +5,8 @@ func main() {
 	switch rc.Command {
 	case "query":
 		queryMain(rc)
+	case "list-index":
+		listIndicesMain(rc)
 
 	}
 
