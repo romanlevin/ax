@@ -32,11 +32,25 @@ type JsonList []interface{}
 
 func addHeaders(rc RuntimeConfig, req *http.Request) {
 	req.Header.Set("Authorization", rc.AuthHeader)
-	req.Header.Set("Kbn-Version", "5.2.2")
+	req.Header.Set("Kbn-Version", rc.KbnVersion)
 	req.Header.Set("Content-Type", "application/x-ldjson")
 	req.Header.Set("Accept", "application/json, text/plain, */*")
 }
 
 func unixMillis(t time.Time) int64 {
 	return t.Unix() * 1000
+}
+
+func jsonThis(obj interface{}) string {
+	buf, err := json.Marshal(obj)
+	if err != nil {
+		return "<<JSON ENCODE ERROR>>"
+	}
+	return string(buf)
+}
+
+func unJsonThis(s string) JsonObject {
+	var obj JsonObject
+	json.Unmarshal([]byte(s), &obj)
+	return obj
 }

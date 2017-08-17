@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sort"
 	"time"
@@ -32,7 +34,7 @@ func ListIndices(rc RuntimeConfig) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/es_admin/.kibana/index-pattern/_search?stored_fields=", rc.Url), body)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/es_admin/.kibana/index-pattern/_search?stored_fields=", rc.URL), body)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +125,7 @@ func queryIndices(rc RuntimeConfig) ([]IndexMeta, error) {
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/elasticsearch/%s/_field_stats?level=indices", rc.Url, rc.Index), body)
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/elasticsearch/%s/_field_stats?level=indices", rc.URL, rc.Index), body)
 	if err != nil {
 		return nil, err
 	}
@@ -133,6 +135,10 @@ func queryIndices(rc RuntimeConfig) ([]IndexMeta, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		buf, _ := ioutil.ReadAll(resp.Body)
+		return nil, errors.New(string(buf))
+	}
 	decoder := json.NewDecoder(resp.Body)
 	var data Indices
 	err = decoder.Decode(&data)

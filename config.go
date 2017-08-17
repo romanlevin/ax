@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -11,20 +12,21 @@ import (
 
 type Config struct {
 	ActiveEnv    string                       `toml:"activeenv"`
-	Url          string                       `toml:"url"`
+	URL          string                       `toml:"url"`
 	AuthHeader   string                       `toml:"authheader"`
 	Environments map[string]EnvironmentConfig `toml:"env"`
 }
 
 type EnvironmentConfig struct {
-	Url        string `toml:"url"`
+	URL        string `toml:"url"`
 	AuthHeader string `toml:"authheader"`
 	Index      string `toml:"index"`
 }
 
 type RuntimeConfig struct {
 	EnvironmentConfig
-	Command string
+	Command    string
+	KbnVersion string
 }
 
 func BuildConfig() RuntimeConfig {
@@ -57,8 +59,8 @@ func BuildConfig() RuntimeConfig {
 	}
 
 	// Inherit Url and AuthHeader if necessary
-	if rc.Url == "" {
-		rc.Url = config.Url
+	if rc.URL == "" {
+		rc.URL = config.URL
 	}
 	if rc.AuthHeader == "" {
 		rc.AuthHeader = config.AuthHeader
@@ -66,11 +68,15 @@ func BuildConfig() RuntimeConfig {
 
 	// Arg overrides
 	if *url != "" {
-		rc.Url = *url
+		rc.URL = *url
 	}
 	if *indexName != "" {
 		rc.Index = *indexName
 	}
+
+	res, err := http.Head(fmt.Sprintf("%s/elasticsearch/%s/_field_stats?level=indices", rc.URL, rc.Index))
+	res.Body.Close()
+	rc.KbnVersion = res.Header.Get("kbn-version")
 
 	//fmt.Printf("RuntimeConfig: %+v\n", rc)
 

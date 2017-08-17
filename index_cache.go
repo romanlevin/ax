@@ -12,15 +12,16 @@ type FetchIndicesFunc func() ([]IndexMeta, error)
 type IndexCache struct {
 	path             string
 	fetchIndicesFunc FetchIndicesFunc
+	KbnVersion       string
 	CacheDate        time.Time
 	IndexData        []IndexMeta
 }
 
 const IndexCacheExpiry time.Duration = 4 * time.Hour
 
-func NewIndexCache(indexName string, fetchIndicesFunc FetchIndicesFunc) *IndexCache {
+func NewIndexCache(rc RuntimeConfig, fetchIndicesFunc FetchIndicesFunc) *IndexCache {
 	cache := &IndexCache{
-		path:             fmt.Sprintf("%s/%s.index_cache.json", DataDir, safeFilename(indexName)),
+		path:             fmt.Sprintf("%s/%s.index_cache.json", DataDir, safeFilename(fmt.Sprintf("%s_%s", rc.URL, rc.Index))),
 		fetchIndicesFunc: fetchIndicesFunc,
 	}
 	file, err := os.Open(cache.path)
