@@ -159,6 +159,11 @@ func project(m map[string]interface{}, fields []string) map[string]interface{} {
 	}
 	projected := map[string]interface{}{}
 	for _, field := range fields {
+		// fieldParts := strings.Split(field, ".")
+		// current := projected
+		// for _, fieldPart := range fieldParts {
+
+		}
 		projected[field] = m[field]
 	}
 	return projected
@@ -312,7 +317,7 @@ func queryMain(rc RuntimeConfig) {
 
 	if *queryFollow {
 		queryFollowMain(rc)
-		return // Actually a NOOP
+		return // Actually a NOOP, because queryFollowMain never returns
 	}
 	cache := NewIndexCache(rc, CacheIndices)
 	indices, err := cache.Indices()

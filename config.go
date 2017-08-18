@@ -74,7 +74,7 @@ func BuildConfig() RuntimeConfig {
 		rc.Index = *indexName
 	}
 
-	res, err := http.Head(fmt.Sprintf("%s/elasticsearch/%s/_field_stats?level=indices", rc.URL, rc.Index))
+	res, err := http.Head(fmt.Sprintf("%s/app/kibana", rc.URL))
 	res.Body.Close()
 	rc.KbnVersion = res.Header.Get("kbn-version")
 
