@@ -163,7 +163,7 @@ func project(m map[string]interface{}, fields []string) map[string]interface{} {
 		// current := projected
 		// for _, fieldPart := range fieldParts {
 
-		}
+		// }
 		projected[field] = m[field]
 	}
 	return projected
